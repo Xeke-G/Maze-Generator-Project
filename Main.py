@@ -79,15 +79,18 @@ def nav(maze, row, column):
 
 def createMaze(numRow, numCol):
     maze = []
+    map = []
     for rows in range(numRow):
-        row = []
+        mazeRow = []
+        mapRow = []
         for cols in range(numCol):
             cell = {"up":True,"down":True,"left":True,"right":True}
-            row.append(cell)
-        maze.append(row)
-    return maze
+            mazeRow.append(cell)
+            mapRow.append(False)
+        maze.append(mazeRow)
+        map.append(mapRow)
+    return maze, map
 
-newMaze = createMaze(numRow = 5, numCol = 5)
         
         
 # for row in newMaze:
@@ -187,11 +190,10 @@ def displayMaze(maze):
 
 
 
-def navigateMaze(maze,map,coords):
+def navigateMaze(maze,map,coords,Print=False):
     
     map[coords[0]][coords[1]] = True
         
-    
     moveChoices = []
     directions = nav(map,coords[0],coords[1])
     if directions[0][1] is not None and map[coords[0]-1][coords[1]] is False:
@@ -204,61 +206,61 @@ def navigateMaze(maze,map,coords):
         moveChoices.append("right")
     
     if len(moveChoices) == 0:
-        print("dead end at",coords)
+        if Print: print("dead end at",coords)
         return
         
     while len(moveChoices) > 0:
-        
         move = rand.choice(moveChoices)
         moveChoices.remove(move)
         
-        
-            
         if move == "up":
             newCoords = (coords[0]-1,coords[1])
-            if visited[newCoords[0]][newCoords[1]] == False:
-                print(coords, "going",move) 
+            if map[newCoords[0]][newCoords[1]] == False:
+                if Print: print(coords, "going",move) 
+                removeWall(maze, row=coords[0], col=coords[1], dir="up",Print=False)
                 navigateMaze(maze,map,newCoords)
-                print(coords, "Backtracked down")
+                if Print: print(coords, "Backtracked down")
         elif move == "down":
             newCoords = (coords[0]+1,coords[1])
-            if visited[newCoords[0]][newCoords[1]] == False:
-                print(coords, "going",move)
+            if map[newCoords[0]][newCoords[1]] == False:
+                if Print: print(coords, "going",move)
+                removeWall(maze, row=coords[0], col=coords[1], dir="down",Print=False)
                 navigateMaze(maze,map,newCoords)
-                print(coords, "Backtracked up")
+                if Print: print(coords, "Backtracked up")
         elif move == "left":
             newCoords = (coords[0],coords[1]-1)
-            if visited[newCoords[0]][newCoords[1]] == False:
-                print(coords, "going",move)
+            if map[newCoords[0]][newCoords[1]] == False:
+                if Print: print(coords, "going",move)
+                removeWall(maze, row=coords[0], col=coords[1], dir="left",Print=False)
                 navigateMaze(maze,map,newCoords)
-                print(coords, "Backtracked right")
+                if Print: print(coords, "Backtracked right")
         elif move == "right":
             newCoords = (coords[0],coords[1]+1)
-            if visited[newCoords[0]][newCoords[1]] == False:
-                print(coords, "going",move)
+            if map[newCoords[0]][newCoords[1]] == False:
+                if Print: print(coords, "going",move)
+                removeWall(maze, row=coords[0], col=coords[1], dir="right",Print=False)
                 navigateMaze(maze,map,newCoords)
-                print(coords, "Backtracked left")
-    
+                if Print: print(coords, "Backtracked left")
     return
     
       
             
-visited = [
-    [False, False, False, False],
-    [False, False, False, False],
-    [False, False, False, False],
-    [False, False, False, False]
-]
+newMaze, map = createMaze(numRow = 10, numCol = 10)
 
-numRows = len(visited)
-numCols = len(visited[0])
+
+numRows = len(map)
+numCols = len(map[0])
+       
+
 
 randRow = rand.randrange(0,numRows)
 randCol = rand.randrange(0,numCols)
 
 startCoords = (randRow,randCol)
+print(startCoords)
         
-navigateMaze(1,visited,startCoords)
+navigateMaze(newMaze,map,startCoords,Print=False)
+displayMaze(newMaze)
         
 
     
