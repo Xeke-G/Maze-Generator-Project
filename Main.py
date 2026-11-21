@@ -1,6 +1,19 @@
 import random as rand
 import math
 
+def createMaze(numRow, numCol):
+    maze = []
+    map = []
+    for rows in range(numRow):
+        mazeRow = []
+        mapRow = []
+        for cols in range(numCol):
+            cell = {"up":True,"down":True,"left":True,"right":True}
+            mazeRow.append(cell)
+            mapRow.append(False)
+        maze.append(mazeRow)
+        map.append(mapRow)
+    return maze, map
 
 def nav(maze, row, column):
 
@@ -43,60 +56,7 @@ def nav(maze, row, column):
     #     elif value == 0: print(direction, "path")
         
     return directions
-        
 
-# maze = [
-#     [0,0,1,1,1],
-#     [1,0,1,0,1],
-#     [1,0,0,0,1],
-#     [1,1,1,0,1],
-#     [0,0,0,0,1],
-# ]
-
-# directions = nav(maze, row=0, column=0)
-# print(directions, "\n")
-
-# print(directions)
-
-# cell = {"up":True,"down":True,"left":True,"right":True}
-
-# cells = [
-#     {"up":True,"down":True,"left":True,"right":True},
-#     {"up":True,"down":True,"left":True,"right":True},
-#     {"up":True,"down":True,"left":True,"right":True},
-#     {"up":True,"down":True,"left":True,"right":True}
-# ]
-
-# for cell in cells:
-#     print(cell)
-    
-# cells[1].update({"right":False})
-
-
-# for cell in cells:
-#     print(cell)
-
-
-def createMaze(numRow, numCol):
-    maze = []
-    map = []
-    for rows in range(numRow):
-        mazeRow = []
-        mapRow = []
-        for cols in range(numCol):
-            cell = {"up":True,"down":True,"left":True,"right":True}
-            mazeRow.append(cell)
-            mapRow.append(False)
-        maze.append(mazeRow)
-        map.append(mapRow)
-    return maze, map
-
-        
-        
-# for row in newMaze:
-#     for cell in row:
-#         print(cell)
-        
 def removeWall(maze, row, col, dir,Print=True):
     directions = nav(maze,row,col)
     removed = False
@@ -124,24 +84,11 @@ def removeWall(maze, row, col, dir,Print=True):
     if Print: print("invalid position")
     return False
 
-# newMaze = removeWall(newMaze, 0, 3, "right", True)
-# newMaze = removeWall(newMaze, 3, 0, "down", True)
-
-
 def printCells(maze):
     for row_index, row in enumerate(maze):
         for column_index, cell in enumerate(row):
             print((row_index, column_index), cell)
             
-# newMaze[0][3]["right"] = False
-# newMaze[3][0]["down"] = False
-# newMaze[2][0]["down"] = False
-# newMaze[3][0]["down"] = False
-# newMaze[1][0]["right"] = False
-
-
-
-
 def displayMaze(maze):
     # easier to tell whats being printed where. the blank and path are needed because of the different spacing around a pipe vs dashes, i.e. the last print statement
     CORNER =  "+"   
@@ -185,11 +132,6 @@ def displayMaze(maze):
             i+=1
         print("\n",end="")
         
-# printCells(newMaze)
-# displayMaze(newMaze)
-
-
-
 def navigateMaze(maze,map,coords,Print=False):
     
     map[coords[0]][coords[1]] = True
@@ -242,21 +184,20 @@ def navigateMaze(maze,map,coords,Print=False):
                 navigateMaze(maze,map,newCoords)
                 if Print: print(coords, "Backtracked left")
     return
-    
       
-            
+def generateStartCords(maze):
+    numRows = len(maze)
+    numCols = len(maze[0])
+        
+    randRow = rand.randrange(0,numRows)
+    randCol = rand.randrange(0,numCols)
+    
+    startCoords = (randRow,randCol)
+    return startCoords
+          
 newMaze, map = createMaze(numRow = 10, numCol = 10)
 
-
-numRows = len(map)
-numCols = len(map[0])
-       
-
-
-randRow = rand.randrange(0,numRows)
-randCol = rand.randrange(0,numCols)
-
-startCoords = (randRow,randCol)
+startCoords = generateStartCords(newMaze)
 print(startCoords)
         
 navigateMaze(newMaze,map,startCoords,Print=False)
