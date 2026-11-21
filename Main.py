@@ -1,5 +1,11 @@
 import random as rand
 import math
+import pygame
+
+pygame.init()
+
+window = pygame.display.set_mode((1500,1000))
+pygame.display.set_caption("Maze Generator")
 
 def createMaze(numRow, numCol):
     maze = []
@@ -14,6 +20,8 @@ def createMaze(numRow, numCol):
         maze.append(mazeRow)
         map.append(mapRow)
     return maze, map
+
+
 
 def nav(maze, row, column):
 
@@ -198,10 +206,41 @@ def generateStartCords(maze):
 newMaze, map = createMaze(numRow = 10, numCol = 10)
 
 startCoords = generateStartCords(newMaze)
-print(startCoords)
+#print(startCoords)
         
 navigateMaze(newMaze,map,startCoords,Print=False)
 displayMaze(newMaze)
         
+running = True
 
+while running:
+    window.fill((255, 255, 255))
+
+    def drawCellWall(coords, cellWidth, direction,exists):
+        if direction == "up" and exists:
+            pygame.draw.line(window, (0, 0, 0), (coords[0], coords[1]), (coords[0]+cellWidth, coords[1]), 2)
+        if direction == "down" and exists:
+            pygame.draw.line(window, (0, 0, 0), (coords[0], coords[1]+cellWidth), (coords[0]+cellWidth, coords[1]+cellWidth), 2)
+        if direction == "left" and exists:
+            pygame.draw.line(window, (0, 0, 0), (coords[0], coords[1]), (coords[0], coords[1]+cellWidth), 2)
+        if direction == "right" and exists:
+            pygame.draw.line(window, (0, 0, 0), (coords[0]+cellWidth, coords[1]), (coords[0]+cellWidth, coords[1]+cellWidth), 2)
+    
+    def drawMaze(maze, cellWidth):
+        for rowIndex, row in enumerate(maze):    
+            for cellIndex, cell in enumerate(row):    
+                for direction, exists in cell.items():
+                    coords = [(cellIndex+1)*cellWidth,(rowIndex+1)*cellWidth]
+                    drawCellWall(coords,cellWidth,direction,exists)
+                
+    drawMaze(newMaze,50)
+
+    
+    pygame.display.flip()
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+            
+pygame.quit()
     
