@@ -192,7 +192,7 @@ def navigateMaze(maze,map,coords,Print=False):
                 if Print: print(coords, "Backtracked left")
     return
       
-def generateStartCords(maze):
+def generateStartEndCords(maze):
     numRows = len(maze)
     numCols = len(maze[0])
         
@@ -200,8 +200,19 @@ def generateStartCords(maze):
     randCol = rand.randrange(0,numCols)
     
     startCoords = (randRow,randCol)
-    return startCoords
-          
+    endCoords = startCoords
+    
+    startEndMinDifference = (numRows + numCols) // 4
+    i = 1
+    while endCoords == startCoords or startEndMinDifference > (abs(startCoords[0]-endCoords[0])+abs(startCoords[1]-endCoords[1])):
+        randRow = rand.randrange(0,numRows)
+        randCol = rand.randrange(0,numCols)
+        endCoords = (randRow,randCol)
+        i += 1
+        print(i)
+    
+    return startCoords,endCoords
+
 # newMaze, map = createMaze(numRow = 10, numCol = 10)
 
 # startCoords = generateStartCords(newMaze)
@@ -210,11 +221,11 @@ def generateStartCords(maze):
 # navigateMaze(newMaze,map,startCoords,Print=False)
 # displayMaze(newMaze)
 
-def generateMaze():
-    maze,map = createMaze(numRow=10,numCol=10)
-    startcords = generateStartCords(maze)
+def generateMaze(mazeSize):
+    maze,map = createMaze(mazeSize[0],mazeSize[1])
+    startcords,endCoords = generateStartEndCords(maze)
     navigateMaze(maze,map,startcords,Print=False)
-    return maze
+    return maze, startcords,endCoords
 
 def drawCellWall(coords, cellWidth, direction,exists,wallWidth):
         if direction == "up" and exists:
@@ -227,11 +238,27 @@ def drawCellWall(coords, cellWidth, direction,exists,wallWidth):
             pygame.draw.line(window, (0, 0, 0), (coords[0]+cellWidth, coords[1]), (coords[0]+cellWidth, coords[1]+cellWidth), wallWidth)
     
 def drawMaze(maze, cellWidth,wallWidth,xOffset,yOffset):
+    pygame.draw.rect(window, (0, 255, 0), (((startCoords[1]*cellWidth)+int(xOffset)),((startCoords[0]*cellWidth)+int(yOffset)),cellWidth,cellWidth))
+    
+    pygame.draw.rect(window, (255, 0, 0), (((endCoords[1]*cellWidth)+int(xOffset)),((endCoords[0]*cellWidth)+int(yOffset)),cellWidth,cellWidth))
+    
     for rowIndex, row in enumerate(maze):    
         for cellIndex, cell in enumerate(row):    
             for direction, exists in cell.items():
                 coords = [(cellIndex*cellWidth)+xOffset,(rowIndex*cellWidth)+yOffset]
                 drawCellWall(coords,cellWidth,direction,exists,wallWidth)
+        
+        
+def solveMaze(maze):
+    return
+        
+        
+        
+        
+        
+        
+        
+        
         
 running = True
 
@@ -239,7 +266,6 @@ window.fill((255, 255, 255))
 pygame.display.flip()
 
 while running:
-    # window.fill((100, 100, 100))
 
     
                 
@@ -247,8 +273,11 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 
-                window.fill((100, 100, 100))
-                maze = generateMaze()
+                window.fill((255, 255, 255))
+                
+                mazeSize = [20,20]
+                maze, startCoords, endCoords = generateMaze(mazeSize)
+                
                 cellWidth=50
                 wallWidth=2
                 
@@ -260,6 +289,13 @@ while running:
                 drawMaze(maze,cellWidth,wallWidth,int(xOffset),int(yOffset))
                 
                 pygame.display.flip()
+                
+            if event.key == pygame.K_q:
+                running = False
+                                
+       
+                
+                
                 
         if event.type == pygame.QUIT:
             running = False
