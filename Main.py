@@ -3,8 +3,9 @@ import math
 import pygame
 
 pygame.init()
-
-window = pygame.display.set_mode((1600,1000))
+windowWidth = 1600
+windowHeight = 1000
+window = pygame.display.set_mode((windowWidth,windowHeight))
 pygame.display.set_caption("Maze Generator")
 
 def createMaze(numRow, numCol):
@@ -20,8 +21,6 @@ def createMaze(numRow, numCol):
         maze.append(mazeRow)
         map.append(mapRow)
     return maze, map
-
-
 
 def nav(maze, row, column):
 
@@ -216,16 +215,8 @@ def generateMaze():
     startcords = generateStartCords(maze)
     navigateMaze(maze,map,startcords,Print=False)
     return maze
-        
-running = True
 
-window.fill((255, 255, 255))
-pygame.display.flip()
-
-while running:
-    window.fill((255, 255, 255))
-
-    def drawCellWall(coords, cellWidth, direction,exists,wallWidth):
+def drawCellWall(coords, cellWidth, direction,exists,wallWidth):
         if direction == "up" and exists:
             pygame.draw.line(window, (0, 0, 0), (coords[0], coords[1]), (coords[0]+cellWidth, coords[1]), wallWidth)
         if direction == "down" and exists:
@@ -235,28 +226,38 @@ while running:
         if direction == "right" and exists:
             pygame.draw.line(window, (0, 0, 0), (coords[0]+cellWidth, coords[1]), (coords[0]+cellWidth, coords[1]+cellWidth), wallWidth)
     
-    def drawMaze(maze, cellWidth,wallWidth):
-        for rowIndex, row in enumerate(maze):    
-            for cellIndex, cell in enumerate(row):    
-                for direction, exists in cell.items():
-                    coords = [(cellIndex+1)*cellWidth,(rowIndex+1)*cellWidth]
-                    drawCellWall(coords,cellWidth,direction,exists,wallWidth)
-                
-    # pygame.display.flip()
+def drawMaze(maze, cellWidth,wallWidth,xOffset,yOffset):
+    for rowIndex, row in enumerate(maze):    
+        for cellIndex, cell in enumerate(row):    
+            for direction, exists in cell.items():
+                coords = [(cellIndex*cellWidth)+xOffset,(rowIndex*cellWidth)+yOffset]
+                drawCellWall(coords,cellWidth,direction,exists,wallWidth)
+        
+running = True
+
+window.fill((255, 255, 255))
+pygame.display.flip()
+
+while running:
+    # window.fill((100, 100, 100))
+
     
+                
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 
-                window.fill((255, 255, 255))
+                window.fill((100, 100, 100))
                 maze = generateMaze()
                 cellWidth=50
+                wallWidth=2
                 
+                mazeWidth = len(maze[0]) * cellWidth
+                mazeHeight = len(maze) * cellWidth
+                xOffset = (windowWidth - mazeWidth) / 2
+                yOffset = (windowHeight - mazeHeight) / 2
                 
-                
-                
-                
-                drawMaze(maze,cellWidth,wallWidth=2)
+                drawMaze(maze,cellWidth,wallWidth,int(xOffset),int(yOffset))
                 
                 pygame.display.flip()
                 
