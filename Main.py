@@ -4,7 +4,7 @@ import pygame
 
 pygame.init()
 
-window = pygame.display.set_mode((1500,1000))
+window = pygame.display.set_mode((1600,1000))
 pygame.display.set_caption("Maze Generator")
 
 def createMaze(numRow, numCol):
@@ -203,42 +203,63 @@ def generateStartCords(maze):
     startCoords = (randRow,randCol)
     return startCoords
           
-newMaze, map = createMaze(numRow = 10, numCol = 10)
+# newMaze, map = createMaze(numRow = 10, numCol = 10)
 
-startCoords = generateStartCords(newMaze)
-#print(startCoords)
+# startCoords = generateStartCords(newMaze)
+# #print(startCoords)
         
-navigateMaze(newMaze,map,startCoords,Print=False)
-displayMaze(newMaze)
+# navigateMaze(newMaze,map,startCoords,Print=False)
+# displayMaze(newMaze)
+
+def generateMaze():
+    maze,map = createMaze(numRow=10,numCol=10)
+    startcords = generateStartCords(maze)
+    navigateMaze(maze,map,startcords,Print=False)
+    return maze
         
 running = True
+
+window.fill((255, 255, 255))
+pygame.display.flip()
 
 while running:
     window.fill((255, 255, 255))
 
-    def drawCellWall(coords, cellWidth, direction,exists):
+    def drawCellWall(coords, cellWidth, direction,exists,wallWidth):
         if direction == "up" and exists:
-            pygame.draw.line(window, (0, 0, 0), (coords[0], coords[1]), (coords[0]+cellWidth, coords[1]), 2)
+            pygame.draw.line(window, (0, 0, 0), (coords[0], coords[1]), (coords[0]+cellWidth, coords[1]), wallWidth)
         if direction == "down" and exists:
-            pygame.draw.line(window, (0, 0, 0), (coords[0], coords[1]+cellWidth), (coords[0]+cellWidth, coords[1]+cellWidth), 2)
+            pygame.draw.line(window, (0, 0, 0), (coords[0], coords[1]+cellWidth), (coords[0]+cellWidth, coords[1]+cellWidth), wallWidth)
         if direction == "left" and exists:
             pygame.draw.line(window, (0, 0, 0), (coords[0], coords[1]), (coords[0], coords[1]+cellWidth), 2)
         if direction == "right" and exists:
-            pygame.draw.line(window, (0, 0, 0), (coords[0]+cellWidth, coords[1]), (coords[0]+cellWidth, coords[1]+cellWidth), 2)
+            pygame.draw.line(window, (0, 0, 0), (coords[0]+cellWidth, coords[1]), (coords[0]+cellWidth, coords[1]+cellWidth), wallWidth)
     
-    def drawMaze(maze, cellWidth):
+    def drawMaze(maze, cellWidth,wallWidth):
         for rowIndex, row in enumerate(maze):    
             for cellIndex, cell in enumerate(row):    
                 for direction, exists in cell.items():
                     coords = [(cellIndex+1)*cellWidth,(rowIndex+1)*cellWidth]
-                    drawCellWall(coords,cellWidth,direction,exists)
+                    drawCellWall(coords,cellWidth,direction,exists,wallWidth)
                 
-    drawMaze(newMaze,50)
-
-    
-    pygame.display.flip()
+    # pygame.display.flip()
     
     for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                
+                window.fill((255, 255, 255))
+                maze = generateMaze()
+                cellWidth=50
+                
+                
+                
+                
+                
+                drawMaze(maze,cellWidth,wallWidth=2)
+                
+                pygame.display.flip()
+                
         if event.type == pygame.QUIT:
             running = False
             
