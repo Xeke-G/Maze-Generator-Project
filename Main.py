@@ -10,17 +10,22 @@ pygame.display.set_caption("Maze Generator")
 
 def createMaze(numRow, numCol):
     maze = []
-    map = []
     for rows in range(numRow):
         mazeRow = []
-        mapRow = []
         for cols in range(numCol):
             cell = {"up":True,"down":True,"left":True,"right":True}
             mazeRow.append(cell)
-            mapRow.append(False)
         maze.append(mazeRow)
-        map.append(mapRow)
-    return maze, map
+    return maze
+
+def createMap(numRow, numCol):
+    map = []
+    for rows in range(numRow):
+            mapRow = []
+            for cols in range(numCol):
+                mapRow.append(False)
+            map.append(mapRow)
+    return map
 
 def nav(maze, row, column):
 
@@ -222,7 +227,8 @@ def generateStartEndCords(maze):
 # displayMaze(newMaze)
 
 def generateMaze(mazeSize):
-    maze,map = createMaze(mazeSize[0],mazeSize[1])
+    maze = createMaze(mazeSize[0],mazeSize[1])
+    map = createMap(mazeSize[0],mazeSize[1])
     startcords,endCoords = generateStartEndCords(maze)
     navigateMaze(maze,map,startcords,Print=False)
     return maze, startcords,endCoords
@@ -248,27 +254,91 @@ def drawMaze(maze, cellWidth,wallWidth,xOffset,yOffset):
                 coords = [(cellIndex*cellWidth)+xOffset,(rowIndex*cellWidth)+yOffset]
                 drawCellWall(coords,cellWidth,direction,exists,wallWidth)
         
+def solveMaze(maze, map, coords, endCoords,Print = False):
+    
+    map[coords[0]][coords[1]] = True
+    
+    if coords == endCoords:
+        solution = [coords]
+        return solution
+            
+    moveChoices = []
+    directions = nav(map,coords[0],coords[1])
+    if directions[0][1] is not None and map[coords[0]-1][coords[1]] is False and not maze[coords[0]][coords[1]]["up"]:
+        moveChoices.append("up")
+    if directions[1][1] is not None and map[coords[0]+1][coords[1]] is False and not maze[coords[0]][coords[1]]["down"]:
+        moveChoices.append("down")
+    if directions[2][1] is not None and map[coords[0]][coords[1]-1] is False and not maze[coords[0]][coords[1]]["left"]:
+        moveChoices.append("left")
+    if directions[3][1] is not None and map[coords[0]][coords[1]+1] is False and not maze[coords[0]][coords[1]]["right"]:
+        moveChoices.append("right")
+    
+    if len(moveChoices) == 0:
+        if Print: print("dead end at",coords)
+        return None
+    while len(moveChoices) > 0:
+        move = rand.choice(moveChoices)
+        moveChoices.remove(move)
         
-def solveMaze(maze):
-    return
+        if move == "up":
+            newCoords = (coords[0]-1,coords[1])
+            if map[newCoords[0]][newCoords[1]] == False:
+                if Print: print(coords, "going",move) 
+                solution = solveMaze(maze, map, newCoords, endCoords,Print)
+                if Print: print(coords, "Backtracked down")
+                if solution is not None: 
+                    solution.insert(0,coords)
+                    return solution
+                
+        elif move == "down":
+            newCoords = (coords[0]+1,coords[1])
+            if map[newCoords[0]][newCoords[1]] == False:
+                if Print: print(coords, "going",move)
+                solution = solveMaze(maze, map, newCoords, endCoords,Print)
+                if Print: print(coords, "Backtracked up")
+                if solution is not None: 
+                    solution.insert(0,coords)
+                    return solution
+                
+        elif move == "left":
+            newCoords = (coords[0],coords[1]-1)
+            if map[newCoords[0]][newCoords[1]] == False:
+                if Print: print(coords, "going",move)
+                solution = solveMaze(maze, map, newCoords, endCoords,Print)
+                if Print: print(coords, "Backtracked right")
+                if solution is not None: 
+                    solution.insert(0,coords)
+                    return solution
+                
+        elif move == "right":
+            newCoords = (coords[0],coords[1]+1)
+            if map[newCoords[0]][newCoords[1]] == False:
+                if Print: print(coords, "going",move)
+                solution = solveMaze(maze, map, newCoords, endCoords,Print)
+                if Print: print(coords, "Backtracked left")
+                if solution is not None: 
+                    solution.insert(0,coords)
+                    return solution
+    return None
         
-        
-        
-        
-        
-        
-        
-        
-        
+def drawSolution(maze,map,solution,cellWidth,wallWidth,xOffset,yOffset):
+    for i in range(1,len(solution)):
+        pygame.draw.line(window,
+                         (200,50,200),
+                         (((solution[i-1][1] * cellWidth) + int(xOffset) + cellWidth//2), ((solution[i-1][0] * cellWidth) + int(yOffset)) + cellWidth//2),
+                         (((solution[i][1] * cellWidth) + int(xOffset) + cellWidth//2), ((solution[i][0] * cellWidth) + int(yOffset)) + cellWidth//2),
+                         5
+                        )
+
+    
+
 running = True
 
 window.fill((255, 255, 255))
 pygame.display.flip()
 
 while running:
-
-    
-                
+     
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
@@ -277,6 +347,11 @@ while running:
                 
                 mazeSize = [20,20]
                 maze, startCoords, endCoords = generateMaze(mazeSize)
+                
+                
+                map = createMap(len(maze),len(maze[0]))
+                solution = solveMaze(maze,map,startCoords,endCoords,Print = False)
+                print(solution)
                 
                 cellWidth=50
                 wallWidth=2
@@ -287,6 +362,9 @@ while running:
                 yOffset = (windowHeight - mazeHeight) / 2
                 
                 drawMaze(maze,cellWidth,wallWidth,int(xOffset),int(yOffset))
+                drawSolution(maze,map,solution,cellWidth,wallWidth,int(xOffset),int(yOffset))
+                
+                
                 
                 pygame.display.flip()
                 
